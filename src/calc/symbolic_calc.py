@@ -27,13 +27,15 @@ def transition_e(_, __, ___): return C1_PRIME * RnB * ln(2) + DELTA_MIN
 def transition_f(_, __, ___): return C1 * RnA * ln(2) + DELTA_MIN
 def transition_g(_, __, ___): return C1_PRIME * RnB * ln(2) + DELTA_MIN
 def transition_h(_, __, ___): return C1 * RnA * ln(2) + DELTA_MIN
-
 def infer_transition_cases(input_vectors):
     """
     Infers transition cases for a sequence of input vectors.
     The first case is based on the initial two vectors.
     The remaining cases are based on sliding triplets.
     """
+    import sys
+    print("DEBUG: infer_transition_cases input:", input_vectors, file=sys.stderr, flush=True)
+
     # --- Initial two-vector transition logic ---
     def transition_case_two(vec1, vec2):
         if vec1 == [0, 0] and vec2 == [1, 0]: return TransitionCase.A
@@ -44,6 +46,7 @@ def infer_transition_cases(input_vectors):
         if vec1 == [1, 1] and vec2 == [1, 0]: return TransitionCase.F
         if vec1 == [0, 1] and vec2 == [0, 0]: return TransitionCase.G
         if vec1 == [1, 0] and vec2 == [0, 0]: return TransitionCase.H
+        print(f"DEBUG: No initial transition mapping for {vec1} → {vec2}", file=sys.stderr, flush=True)
         raise ValueError(f"No initial transition mapping for {vec1} → {vec2}")
 
     # --- Triplet transition logic ---
@@ -64,6 +67,8 @@ def infer_transition_cases(input_vectors):
         if prev == [1, 1] and curr == [0, 1] and next_ == [0, 0]: return TransitionCase.G  # (e,g)
         if prev == [0, 0] and curr == [1, 0] and next_ == [0, 0]: return TransitionCase.H  # (a,h)
         if prev == [1, 1] and curr == [1, 0] and next_ == [0, 0]: return TransitionCase.H  # (f,h)
+        print("DEBUG: triplet_to_case error!", file=sys.stderr, flush=True)
+        print(f"Prev: {prev}, Curr: {curr}, Next: {next_}", file=sys.stderr, flush=True)
         raise ValueError(f"No transition mapping for {prev} → {curr} → {next_}")
 
     cases = []
@@ -476,12 +481,17 @@ def compute_output_transitions(input_times, transition_cases):
             t_o = input_times[i] + get_t0_formula(curr_case)
         else:
             prev_case = transition_cases[i - 1]
-            T = input_times[i] - t_out[i - 1]
+            T = input_times[i] - input_times[i - 1]
             delta = t_out[i - 1] - input_times[i - 1]
             delta_prime = t_out[i - 2] - input_times[i - 2] if i >= 2 else delta
             formula = get_transition_formula(prev_case, curr_case)
-            t_o = input_times[i] + formula(delta, delta_prime, T)
+
+            # Always anchor to the input event that triggered this transition
+            base_time = input_times[i]
+            t_o = base_time + formula(delta, delta_prime, T)
 
         t_out.append(t_o)
 
     return t_out
+
+

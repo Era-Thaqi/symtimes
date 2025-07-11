@@ -1,0 +1,25 @@
+{
+  "input_vectors": [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0], [0, 1], [1, 1]]
+}
+Assume these are the values of (a1, a3) at times [t0, t1, ..., t6].
+
+So:
+
+
+a1_vals = [0, 0, 1, 1, 0, 0, 1]
+a3_vals = [0, 1, 1, 0, 0, 1, 1]
+o1_vals = [1 - (a | b) for a, b in zip(a1_vals, a3_vals)]
+You now get:
+
+
+o1_vals = [1, 0, 0, 0, 1, 0, 0]   # logic values of o1 over time
+
+Get a[2] Logic Values (user-specified)
+Say:
+a2_vals = [1, 1, 0, 0, 1, 1, 0]
+
+✅ Generate Input Vectors for o[2]
+Each input is a pair:
+
+input_vectors_o2 = list(zip(a2_vals, o1_vals))
+# → [[1, 1], [1, 0], [0, 0], [0, 0], [1, 1], [1, 0], [0, 0]]
