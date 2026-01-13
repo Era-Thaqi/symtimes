@@ -39,7 +39,7 @@ def main() -> None:
             anchor = var(f"t_a1_{idx_a1 + 1}")
             idx_a1 += 1
         elif changed == [True, True]:
-            anchor = var(f"t_a1_{idx_a1 + 1}")  # or a0, depends on your priority
+            anchor = var(f"t_a1_{idx_a1 + 1}")  
             idx_a0 += 1
             idx_a1 += 1
         else:
